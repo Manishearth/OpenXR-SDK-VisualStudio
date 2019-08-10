@@ -26,6 +26,7 @@
 
 #include <openxr/openxr.h>
 
+#include <iostream>
 #include <algorithm>
 #include <iterator>
 #include <memory>
@@ -185,23 +186,15 @@ LoaderLogger::LoaderLogger() {
     // If the environment variable to enable loader debugging is set, then enable the
     // appropriate logging out to std::cout.
     char* loader_debug = PlatformUtilsGetSecureEnv("XR_LOADER_DEBUG");
-    if (nullptr != loader_debug) {
+
         std::string debug_string = loader_debug;
         PlatformUtilsFreeEnv(loader_debug);
         XrLoaderLogMessageSeverityFlags debug_flags = {};
-        if (debug_string == "error") {
-            debug_flags = XR_LOADER_LOG_MESSAGE_SEVERITY_ERROR_BIT;
-        } else if (debug_string == "warn") {
-            debug_flags = XR_LOADER_LOG_MESSAGE_SEVERITY_ERROR_BIT | XR_LOADER_LOG_MESSAGE_SEVERITY_WARNING_BIT;
-        } else if (debug_string == "info") {
-            debug_flags = XR_LOADER_LOG_MESSAGE_SEVERITY_ERROR_BIT | XR_LOADER_LOG_MESSAGE_SEVERITY_WARNING_BIT |
-                          XR_LOADER_LOG_MESSAGE_SEVERITY_INFO_BIT;
-        } else if (debug_string == "all" || debug_string == "verbose") {
             debug_flags = XR_LOADER_LOG_MESSAGE_SEVERITY_ERROR_BIT | XR_LOADER_LOG_MESSAGE_SEVERITY_WARNING_BIT |
                           XR_LOADER_LOG_MESSAGE_SEVERITY_INFO_BIT | XR_LOADER_LOG_MESSAGE_SEVERITY_VERBOSE_BIT;
-        }
+ 
         AddLogRecorder(MakeStdOutLoaderLogRecorder(nullptr, debug_flags));
-    }
+   
 }
 
 void LoaderLogger::AddLogRecorder(std::unique_ptr<LoaderLogRecorder>&& recorder) { _recorders.push_back(std::move(recorder)); }
@@ -214,6 +207,9 @@ void LoaderLogger::RemoveLogRecorder(uint64_t unique_id) {
 bool LoaderLogger::LogMessage(XrLoaderLogMessageSeverityFlagBits message_severity, XrLoaderLogMessageTypeFlags message_type,
                               const std::string& message_id, const std::string& command_name, const std::string& message,
                               const std::vector<XrLoaderLogObjectInfo>& objects) {
+    std::string out;
+    out = "LOG: " + command_name + ":" + message + "\n";
+    OutputDebugStringA(out.c_str());
     XrLoaderLogMessengerCallbackData callback_data = {};
     callback_data.message_id = message_id.c_str();
     callback_data.command_name = command_name.c_str();

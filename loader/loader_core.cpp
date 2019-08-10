@@ -35,6 +35,7 @@
 #include <openxr/openxr.h>
 
 #include <cstring>
+#include <iostream>
 #include <memory>
 #include <mutex>
 #include <sstream>
@@ -198,7 +199,12 @@ XRLOADER_ABI_CATCH_FALLBACK
 LOADER_EXPORT XRAPI_ATTR XrResult XRAPI_CALL xrCreateInstance(const XrInstanceCreateInfo *info,
                                                               XrInstance *instance) XRLOADER_ABI_TRY {
     bool runtime_loaded = false;
+    OutputDebugStringA("XRCREATEINSTANCE START");
+    std::ostringstream os;
+    os << "PTR: " << info << "APP: " << &info->applicationInfo << "AFTERAPP: " << &info->enabledApiLayerCount
+       << "EXT: " << &info->enabledExtensionCount << "EXTN: " << &info->enabledExtensionNames << "valext: " << info->enabledExtensionCount << std::endl;
 
+    OutputDebugStringA(os.str().c_str());
     LoaderLogger::LogVerboseMessage("xrCreateInstance", "Entering loader trampoline");
     if (nullptr == info) {
         LoaderLogger::LogValidationErrorMessage("VUID-xrCreateInstance-info-parameter", "xrCreateInstance", "must be non-NULL");
